@@ -1,0 +1,33 @@
+import customtkinter as ctk
+win = ctk.CTk(fg_color="#017970")
+win.title("AMS")
+win.geometry("1300x760")
+win.resizable(0,0)
+win._set_appearance_mode("light")
+
+
+topnav = ctk.CTkFrame(win, fg_color="#A20025", height=50, width=1300, corner_radius=0)
+topnav.place(relx=0, rely=0)
+
+date = ctk.CTkLabel(topnav, text="DECEMBER 25, 2025")
+date.place(relx=0.43, rely=0.15)
+
+bottomnav = ctk.CTkFrame(win, fg_color="#A20025", height=50, width=1300, corner_radius=0)
+bottomnav.place(relx=0, rely=0.934)
+
+login_frame = ctk.CTkFrame(win, height=550, width=400)
+login_frame.place(relx=0.65, rely=0.15)
+
+entry1 = ctk.CTkEntry(login_frame, height=50, width=250, placeholder_text="School ID")
+entry1.place(relx=0.18, rely=0.5)
+
+entry2 = ctk.CTkEntry(login_frame, height=50, width=250, placeholder_text="Password")
+entry2.place(relx=0.18, rely=0.6)
+
+login_button = ctk.CTkButton(login_frame, height=50, width=250, fg_color="#85001E", text="LOGIN")
+login_button.place(relx=0.18, rely=0.7)
+
+pic = ctk.CTkFrame(login_frame, height=200, width=200)
+pic.place(relx=0.23, rely=0.1)
+
+win.mainloop()
