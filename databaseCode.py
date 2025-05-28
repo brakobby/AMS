@@ -1,35 +1,81 @@
+
 import sqlite3
 
-def connect_database():
-    return sqlite3.connect("AMS.db")
+DB_NAME = "students.db"
 
-def create_table():
-    conn = connect_database()
+def connect_db():
+    """Connect to the SQLite3 database."""
+    return sqlite3.connect(DB_NAME)
+
+def create_students_table():
+    """Create the students table with all fields."""
+    conn = connect_db()
     cursor = conn.cursor()
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS student_data
-    (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    studentID TEXT NOT NULL,
-    fullname TEXT NOT NULL,
-    birthdate TEXT NOT NULL,
-    grade TEXT NOT NULL,     
-    guardian TEXT NOT NULL,
-    contact TEXT NOT NULL,
-    emergencycontact TEXT NOT NULL, 
-    allergies TEXT NOT NULL                           
-    )
+        CREATE TABLE IF NOT EXISTS students (
+            student_id TEXT PRIMARY KEY,
+            full_name TEXT NOT NULL,
+            sex TEXT CHECK(sex IN ('Male', 'Female')),
+            parent_name TEXT,
+            occupation TEXT,
+            phone TEXT,
+            grade TEXT CHECK(grade IN (
+                'Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6',
+                'Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'
+            )),
+            photo_path TEXT
+        )
     """)
     conn.commit()
     conn.close()
 
-def insert_data(studentID, fullname, birthdate, grade, guardian, contact, emergencycontact, allergy):
-        conn = connect_database()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO student_data(studentID, fullname, birthdate, grade, guardian, contact, emergencycontact, allergy) VALUES (?,?)",(studentID, fullname, birthdate, grade, guardian, contact, emergencycontact, allergy))
-
+def insert_student(student_id, full_name, sex, parent_name, occupation, phone, grade, photo_path=None):
+    """Insert a new student record."""
+    conn = connect_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO students (
+                student_id, full_name, sex, parent_name, occupation, phone, grade, photo_path
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (student_id, full_name, sex, parent_name, occupation, phone, grade, photo_path))
         conn.commit()
+    except sqlite3.IntegrityError as e:
+        raise ValueError(f"Student ID already exists or invalid data: {e}")
+    finally:
         conn.close()
 
+def get_all_students():
+    """Return a list of all students."""
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM students")
+    results = cursor.fetchall()
+    conn.close()
+    return results
 
-create_table()
+def delete_student(student_id):
+    """Delete a student by ID."""
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM students WHERE student_id = ?", (student_id,))
+    conn.commit()
+    conn.close()
+
+def update_student(student_id, full_name, sex, parent_name, occupation, phone, grade, photo_path=None):
+    """Update a student's record."""
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE students SET
+            full_name = ?,
+            sex = ?,
+            parent_name = ?,
+            occupation = ?,
+            phone = ?,
+            grade = ?,
+            photo_path = ?
+        WHERE student_id = ?
+    """, (full_name, sex, parent_name, occupation, phone, grade, photo_path, student_id))
+    conn.commit()
+    conn.close()
