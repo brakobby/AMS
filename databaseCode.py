@@ -44,6 +44,15 @@ def insert_student(student_id, full_name, sex, parent_name, occupation, phone, g
         raise ValueError(f"Student ID already exists or invalid data: {e}")
     finally:
         conn.close()
+    
+def student_exists(student_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM students WHERE student_id = ?", (student_id,))
+    exists = cursor.fetchone() is not None
+    conn.close()
+    return exists
+
 
 def get_all_students():
     """Return a list of all students."""
